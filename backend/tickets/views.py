@@ -33,22 +33,24 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from django.db.models import Count, Avg
 from django.db.models.functions import TruncDate
-from django.db.models import F
-from django.db.models import FloatField
-from django.db.models.functions import Cast
+from .models import Ticket
 
 
 class TicketStatsView(APIView):
 
     def get(self, request):
 
-        # Total tickets
-        total_tickets = Ticket.objects.count()
+        total_tickets = Ticket.objects.aggregate(
+            total=Count("id")
+        )["total"] or 0
 
-        # Open tickets
-        open_tickets = Ticket.objects.filter(status="open").count()
+        open_tickets = Ticket.objects.filter(
+            status="open"
+        ).aggregate(
+            total=Count("id")
+        )["total"] or 0
 
-        # ---- Average tickets per day (PURE ORM) ----
+        # Average tickets per day (pure DB level)
         daily_counts = (
             Ticket.objects
             .annotate(date=TruncDate("created_at"))
@@ -56,10 +58,11 @@ class TicketStatsView(APIView):
             .annotate(count=Count("id"))
         )
 
-        avg_data = daily_counts.aggregate(avg=Avg("count"))
-        avg_per_day = avg_data["avg"] or 0
+        avg_per_day = daily_counts.aggregate(
+            avg=Avg("count")
+        )["avg"] or 0
 
-        # ---- Priority breakdown ----
+        # Priority breakdown
         priority_data = (
             Ticket.objects
             .values("priority")
@@ -71,7 +74,7 @@ class TicketStatsView(APIView):
             for item in priority_data
         }
 
-        # ---- Category breakdown ----
+        # Category breakdown
         category_data = (
             Ticket.objects
             .values("category")
