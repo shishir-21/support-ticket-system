@@ -9,28 +9,62 @@ import { getTickets, updateTicket } from "./services/api";
  */
 function App() {
   const [tickets, setTickets] = useState([]);
+  // Filter states
+  const [categoryFilter, setCategoryFilter] = useState("");
+  const [priorityFilter, setPriorityFilter] = useState("");
+  const [statusFilter, setStatusFilter] = useState("");
 
-  /**
-   * Load tickets from backend
-   */
+
+  // Load tickets with filters
   const loadTickets = async () => {
-    try {
-      const data = await getTickets();
-      setTickets(data);
-    } catch (error) {
-      console.error("Failed to load tickets:", error);
-    }
+    let query = "?";
+
+    // Add filters if selected
+    if (categoryFilter) query += `category=${categoryFilter}&`;
+    if (priorityFilter) query += `priority=${priorityFilter}&`;
+    if (statusFilter) query += `status=${statusFilter}&`;
+
+    const data = await getTickets(query);
+    setTickets(data);
   };
 
-  // Load tickets when component mounts
+
+
+  // Reload tickets whenever filter changes
   useEffect(() => {
     loadTickets();
-  }, []);
+  }, [categoryFilter, priorityFilter, statusFilter]);
 
   return (
     <div>
       {/* Ticket Creation Form */}
       <TicketForm onTicketCreated={loadTickets} />
+
+      <h2>Filters</h2>
+
+      <select onChange={(e) => setCategoryFilter(e.target.value)}>
+        <option value="">All Categories</option>
+        <option value="billing">Billing</option>
+        <option value="technical">Technical</option>
+        <option value="account">Account</option>
+        <option value="general">General</option>
+      </select>
+
+      <select onChange={(e) => setPriorityFilter(e.target.value)}>
+        <option value="">All Priorities</option>
+        <option value="low">Low</option>
+        <option value="medium">Medium</option>
+        <option value="high">High</option>
+        <option value="critical">Critical</option>
+      </select>
+
+      <select onChange={(e) => setStatusFilter(e.target.value)}>
+        <option value="">All Status</option>
+        <option value="open">Open</option>
+        <option value="in_progress">In Progress</option>
+        <option value="resolved">Resolved</option>
+        <option value="closed">Closed</option>
+      </select>
 
       <h2>Tickets</h2>
 
