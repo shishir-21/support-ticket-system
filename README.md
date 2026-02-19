@@ -142,3 +142,22 @@ No Python-level loops are used for aggregation.
 - Entire project runs with `docker compose up --build`
 - No manual setup required (except API key)
 - `.git` directory included for commit history review
+
+
+
+## API Endpoints
+
+Base URL:
+http://localhost:8000/api/
+
+Available endpoints:
+
+- GET /tickets/ → List all tickets
+- POST /tickets/ → Create a ticket
+- PATCH /tickets/{id}/ → Update ticket status
+- GET /tickets/?category=... → Filter by category
+- GET /tickets/?priority=... → Filter by priority
+- GET /tickets/?status=... → Filter by status
+- GET /tickets/?search=... → Search by title or description
+- GET /tickets/stats/ → Get aggregated statistics
+- POST /tickets/classify/ → Classify ticket using LLM
