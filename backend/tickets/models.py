@@ -1,4 +1,10 @@
 from django.db import models
+from django.db.models import Q
+
+# Raw allowed values for DB-level constraints
+CATEGORY_VALUES = ["billing", "technical", "account", "general"]
+PRIORITY_VALUES = ["low", "medium", "high", "critical"]
+
 
 
 class Ticket(models.Model):
@@ -91,6 +97,34 @@ class Ticket(models.Model):
 
     # Automatically sets when ticket is created
     created_at = models.DateTimeField(auto_now_add=True)
+
+
+    class Meta:
+        """
+        Meta class is used to define model-level options.
+
+        Here we define database CHECK constraints so that:
+        - category must be one of allowed values
+        - priority must be one of allowed values
+
+        This ensures DB-level validation,
+        not just Django-level validation.
+        """
+
+        constraints = [
+
+            # Ensures category column only accepts allowed values
+            models.CheckConstraint(
+                check=Q(category__in=CATEGORY_VALUES),
+                name="valid_category_constraint",
+            ),
+
+            # Ensures priority column only accepts allowed values
+            models.CheckConstraint(
+                check=Q(priority__in=PRIORITY_VALUES),
+                name="valid_priority_constraint",
+            ),
+        ]
 
     # ----------------------------
     # STRING REPRESENTATION
