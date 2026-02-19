@@ -1,6 +1,6 @@
+import { getTickets, updateTicket, getStats } from "./services/api";
 import { useEffect, useState } from "react";
 import TicketForm from "./components/TicketForm";
-import { getTickets, updateTicket } from "./services/api";
 
 
 /**
@@ -9,6 +9,7 @@ import { getTickets, updateTicket } from "./services/api";
  */
 function App() {
   const [tickets, setTickets] = useState([]);
+  const [stats, setStats] = useState(null);
   // Filter states
   const [categoryFilter, setCategoryFilter] = useState("");
   const [priorityFilter, setPriorityFilter] = useState("");
@@ -30,17 +31,57 @@ function App() {
     setTickets(data);
   };
 
+  /**
+  * Load dashboard stats from backend
+  */
+  const loadStats = async () => {
+    try {
+      const data = await getStats();
+      console.log("Stats Data:", data);
+      setStats(data);
+    } catch (error) {
+      console.error("Failed to load stats:", error);
+    }
+  };
 
 
   // Reload tickets whenever filter changes
   useEffect(() => {
     loadTickets();
+    loadStats();
   }, [categoryFilter, priorityFilter, statusFilter, searchTerm]);
 
   return (
     <div>
       {/* Ticket Creation Form */}
-      <TicketForm onTicketCreated={loadTickets} />
+      <TicketForm
+        onTicketCreated={() => {
+          loadTickets();
+          loadStats();
+        }}
+      />
+
+
+      <h2>Stats Dashboard</h2>
+
+      {stats && (
+        <div style={{ marginBottom: "30px", padding: "10px", border: "1px solid #ccc" }}>
+          <p><strong>Total Tickets:</strong> {stats.total_tickets}</p>
+          <p><strong>Open Tickets:</strong> {stats.open_tickets}</p>
+          <p><strong>Avg Tickets Per Day:</strong> {stats.avg_tickets_per_day}</p>
+
+          <h4>Priority Breakdown:</h4>
+          {Object.entries(stats.priority_breakdown).map(([key, value]) => (
+            <p key={key}>{key}: {value}</p>
+          ))}
+
+          <h4>Category Breakdown:</h4>
+          {Object.entries(stats.category_breakdown).map(([key, value]) => (
+            <p key={key}>{key}: {value}</p>
+          ))}
+        </div>
+      )}
+
 
       <h2>Filters</h2>
 
@@ -96,6 +137,7 @@ function App() {
             onChange={async (e) => {
               await updateTicket(ticket.id, { status: e.target.value });
               loadTickets();
+              await loadStats(); 
             }}
           >
             <option value="open">Open</option>
