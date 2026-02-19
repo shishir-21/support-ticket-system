@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import TicketForm from "./components/TicketForm";
-import { getTickets } from "./services/api";
+import { getTickets, updateTicket } from "./services/api";
+
 
 /**
  * Main Application Component
@@ -35,14 +36,31 @@ function App() {
 
       {/* Ticket List */}
       {tickets.map((ticket) => (
-        <div key={ticket.id}>
+        <div key={ticket.id} style={{ marginBottom: "20px" }}>
           <h3>{ticket.title}</h3>
           <p>{ticket.description}</p>
+
           <p>
             {ticket.category} | {ticket.priority} | {ticket.status}
           </p>
+
+
+          <label>Status: </label>
+          <select
+            value={ticket.status}
+            onChange={async (e) => {
+              await updateTicket(ticket.id, { status: e.target.value });
+              loadTickets();
+            }}
+          >
+            <option value="open">Open</option>
+            <option value="in_progress">In Progress</option>
+            <option value="resolved">Resolved</option>
+            <option value="closed">Closed</option>
+          </select>
         </div>
       ))}
+
     </div>
   );
 }
