@@ -13,9 +13,10 @@ function App() {
   const [categoryFilter, setCategoryFilter] = useState("");
   const [priorityFilter, setPriorityFilter] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
+  const [searchTerm, setSearchTerm] = useState("");
 
 
-  // Load tickets with filters
+  // Load tickets from backend with filters + search
   const loadTickets = async () => {
     let query = "?";
 
@@ -23,6 +24,7 @@ function App() {
     if (categoryFilter) query += `category=${categoryFilter}&`;
     if (priorityFilter) query += `priority=${priorityFilter}&`;
     if (statusFilter) query += `status=${statusFilter}&`;
+    if (searchTerm) query += `search=${searchTerm}&`;
 
     const data = await getTickets(query);
     setTickets(data);
@@ -33,7 +35,7 @@ function App() {
   // Reload tickets whenever filter changes
   useEffect(() => {
     loadTickets();
-  }, [categoryFilter, priorityFilter, statusFilter]);
+  }, [categoryFilter, priorityFilter, statusFilter, searchTerm]);
 
   return (
     <div>
@@ -41,6 +43,15 @@ function App() {
       <TicketForm onTicketCreated={loadTickets} />
 
       <h2>Filters</h2>
+
+      {/* Search Input */}
+      <input
+        type="text"
+        placeholder="Search by title or description"
+        value={searchTerm}
+        onChange={(e) => setSearchTerm(e.target.value)}
+        style={{ marginBottom: "10px", display: "block" }}
+      />
 
       <select onChange={(e) => setCategoryFilter(e.target.value)}>
         <option value="">All Categories</option>
