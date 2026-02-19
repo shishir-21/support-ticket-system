@@ -52,7 +52,13 @@ function App() {
   }, [categoryFilter, priorityFilter, statusFilter, searchTerm]);
 
   return (
-    <div>
+    <div style={{
+      maxWidth: "800px",
+      margin: "40px auto",
+      padding: "20px",
+      fontFamily: "Arial"
+    }}>
+
       {/* Ticket Creation Form */}
       <TicketForm
         onTicketCreated={() => {
@@ -118,11 +124,23 @@ function App() {
         <option value="closed">Closed</option>
       </select>
 
-      <h2>Tickets</h2>
+      <h2 style={{ marginTop: "30px", borderBottom: "1px solid #ccc" }}>
+        Tickets
+      </h2>
+
 
       {/* Ticket List */}
       {tickets.map((ticket) => (
-        <div key={ticket.id} style={{ marginBottom: "20px" }}>
+        <div
+          key={ticket.id}
+          style={{
+            border: "1px solid #ddd",
+            padding: "15px",
+            borderRadius: "8px",
+            marginBottom: "15px",
+            backgroundColor: "#f9f9f9"
+          }}
+        >
           <h3>{ticket.title}</h3>
           <p>{ticket.description}</p>
 
@@ -137,7 +155,7 @@ function App() {
             onChange={async (e) => {
               await updateTicket(ticket.id, { status: e.target.value });
               loadTickets();
-              await loadStats(); 
+              await loadStats();
             }}
           >
             <option value="open">Open</option>
