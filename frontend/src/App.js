@@ -1,5 +1,5 @@
 import { getTickets, updateTicket, getStats } from "./services/api";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import TicketForm from "./components/TicketForm";
 
 
@@ -18,7 +18,7 @@ function App() {
 
 
   // Load tickets from backend with filters + search
-  const loadTickets = async () => {
+  const loadTickets = useCallback(async () => {
     let query = "?";
 
     // Add filters if selected
@@ -29,8 +29,7 @@ function App() {
 
     const data = await getTickets(query);
     setTickets(data);
-  };
-
+  }, [categoryFilter, priorityFilter, statusFilter, searchTerm]);
   /**
   * Load dashboard stats from backend
   */
@@ -48,9 +47,8 @@ function App() {
   // Reload tickets whenever filter changes
   useEffect(() => {
     loadTickets();
-    loadStats();
-  }, [categoryFilter, priorityFilter, statusFilter, searchTerm]);
-
+  }, [loadTickets]);
+  
   return (
     <div style={{
       maxWidth: "800px",
